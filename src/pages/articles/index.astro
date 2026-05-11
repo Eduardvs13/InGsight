@@ -21,15 +21,27 @@ import "../../styles/global.css";
       </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 py-12">
-      <a href="/" class="text-sm text-indigo-600 hover:underline">← Volver</a>
+    <main class="mx-auto w-full max-w-[920px] px-4 py-12 sm:px-6 lg:px-8">
+      <a href="/" class="text-sm font-medium text-[#0056B3] hover:text-[#003366] hover:underline">← Volver</a>
       <div id="article-root" class="mt-6">Cargando artículo...</div>
 
       <script type="module">
         const projectId = '8knpnv8f';
         const dataset = 'production';
 
-        function escapeHtml(s = '') { return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function escapeHtml(s = '') { return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'' :'&#39;'}[c])); }
+
+        function imageUrlFromAssetRef(assetRef) {
+          if (!assetRef) return '';
+
+          const match = assetRef.match(/^image-(.+)-([0-9]+x[0-9]+)-([a-z0-9]+)$/i);
+          if (!match) return '';
+
+          const [, assetId, dimensions, format] = match;
+          const normalizedFormat = format === 'jpeg' ? 'jpg' : format;
+
+          return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-${dimensions}.${normalizedFormat}`;
+        }
 
         function portableTextToSimpleHtml(blocks = []) {
           if (!Array.isArray(blocks)) return '';
@@ -38,18 +50,20 @@ import "../../styles/global.css";
               const text = (block.children || []).map(c => c.text).join('');
               if (block.style === 'h1') return `<h1>${escapeHtml(text)}</h1>`;
               if (block.style === 'h2') return `<h2>${escapeHtml(text)}</h2>`;
+              if (block.style === 'h3') return `<h3>${escapeHtml(text)}</h3>`;
+              if (block.style === 'blockquote') return `<blockquote>${escapeHtml(text)}</blockquote>`;
               return `<p>${escapeHtml(text)}</p>`;
             }
             if (block._type === 'image' && block.asset && block.asset._ref) {
-              const ref = block.asset._ref;
-              const src = `https://cdn.sanity.io/images/${projectId}/${dataset}/${ref.replace(/^image-/, '').replace(/-png$|-jpg$|-jpeg$|-webp$|-.+$/,'')}.jpg`;
-              return `<img src="${src}" alt="${escapeHtml(block.alt || '')}" />`;
+              const src = imageUrlFromAssetRef(block.asset._ref);
+              return `<img src="${src}" alt="${escapeHtml(block.alt || '')}" class="my-8 w-full rounded-xl border border-gray-200 object-cover" />`;
             }
             return '';
           }).join('\n');
         }
 
         async function fetchArticleForPath(pathname) {
+          const root = document.getElementById('article-root');
           const params = new URLSearchParams(location.search);
           const slugFromQuery = params.get('slug');
           const parts = pathname.split('/').filter(Boolean);
@@ -62,7 +76,6 @@ import "../../styles/global.css";
 
           const groq = `*[_type=="article" && slug.current=="${slug}"][0]{titulo, fechaPublicacion, autores[]{nombre,apellido}, portada, contenido}`;
           const url = `https://${projectId}.api.sanity.io/v1/data/query/${dataset}?query=${encodeURIComponent(groq)}`;
-          const root = document.getElementById('article-root');
           try {
             const res = await fetch(url);
             const json = await res.json();
@@ -70,17 +83,20 @@ import "../../styles/global.css";
             if (!doc) { root.innerHTML = '<p>Artículo no encontrado</p>'; return; }
 
             const autores = (doc.autores||[]).map(a => [a.nombre,a.apellido].filter(Boolean).join(' ')).join(', ');
-            const cover = doc.portada && doc.portada.asset && doc.portada.asset._ref ? `https://cdn.sanity.io/images/${projectId}/${dataset}/${doc.portada.asset._ref.replace(/^image-/, '').replace(/-jpg$|-png$|-jpeg$|-.+$/,'')}.jpg` : null;
+            const cover = doc.portada && doc.portada.asset && doc.portada.asset._ref ? imageUrlFromAssetRef(doc.portada.asset._ref) : null;
 
             document.title = `Aletheia - ${doc.titulo || 'Articulo'}`;
             root.innerHTML = `
-              <article class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                <header class="mb-6">
-                  <h1 class="text-3xl font-extrabold leading-tight">${escapeHtml(doc.titulo)}</h1>
-                  <p class="text-sm text-gray-500 mt-2">${doc.fechaPublicacion ? new Date(doc.fechaPublicacion).toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'}) : ''} — ${escapeHtml(autores)}</p>
+              <article class="overflow-hidden rounded-2xl border border-[#E5EAF0] bg-white p-6 shadow-sm sm:p-8 lg:p-10">
+                <header class="mb-8 border-b border-[#D9E2EC] pb-6 text-center">
+                  <div class="text-sm font-semibold uppercase tracking-[0.2em] text-[#0056B3]">${doc.fechaPublicacion ? new Date(doc.fechaPublicacion).toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'}) : ''}</div>
+                  <h1 class="mt-4 break-words text-3xl font-semibold leading-tight text-[#003366] sm:text-5xl">${escapeHtml(doc.titulo)}</h1>
+                  <p class="mt-4 text-base text-gray-500 sm:text-lg">Por <span class="font-medium text-gray-800">${escapeHtml(autores)}</span></p>
                 </header>
-                ${cover ? `<img src="${cover}" alt="${escapeHtml(doc.titulo)}" class="w-full rounded-lg mb-6 object-cover"/>` : ''}
-                <div class="prose max-w-none">${portableTextToSimpleHtml(doc.contenido)}</div>
+                ${cover ? `<img src="${cover}" alt="${escapeHtml(doc.titulo)}" class="mb-8 aspect-[16/9] w-full rounded-xl border border-gray-200 object-cover"/>` : ''}
+                <div class="prose max-w-none break-words overflow-x-hidden leading-8 prose-headings:text-[#003366] prose-p:whitespace-normal prose-p:break-words prose-img:w-full prose-img:rounded-xl">
+                  ${portableTextToSimpleHtml(doc.contenido)}
+                </div>
               </article>
             `;
           } catch (err) {

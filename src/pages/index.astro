@@ -1,28 +1,5 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
-import client from "../sanity/sanityClient";
-import { getAllArticles } from "../sanity/queries";
-import { urlFor } from "../sanity/sanityClient";
-
-const articles = await client.fetch(getAllArticles);
-
-function plainTextFromPortableText(blocks = []) {
-  if (!Array.isArray(blocks)) return "";
-
-  return blocks
-    .map((block) => (block?.children || []).map((child) => child?.text || "").join(" "))
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function excerptFromPortableText(blocks = []) {
-  const text = plainTextFromPortableText(blocks);
-  if (!text) return "Lectura académica disponible en el archivo de la revista.";
-
-  const excerpt = text.slice(0, 180).trim();
-  return excerpt.length < text.length ? `${excerpt}...` : excerpt;
-}
 ---
 
 <MainLayout title="Aletheia - Revista Academica">
@@ -35,103 +12,157 @@ function excerptFromPortableText(blocks = []) {
       </p>
     </div>
 
-    <div class="mt-10 border-b border-[#D9E2EC] pb-3 text-sm text-gray-500">
-      {articles.length} artículos disponibles
+    <div class="mt-10 flex items-center justify-between border-b border-[#D9E2EC] pb-3 text-sm text-gray-500">
+      <span id="article-count">Cargando artículos...</span>
+      <span>Búsqueda en vivo</span>
     </div>
 
-    <div class="mt-8 space-y-6" id="article-list">
-      {articles.map((article) => {
-        const cover = article.portada ? urlFor(article.portada).width(960).height(640).fit("crop").url() : null;
-        const date = article.fechaPublicacion
-          ? new Date(article.fechaPublicacion).toLocaleDateString("es-ES", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          : "";
-        const excerpt = excerptFromPortableText(article.contenido);
-
-        return (
-          <article
-            class="article-item overflow-hidden rounded-2xl border border-[#E5EAF0] bg-white shadow-sm transition-shadow hover:shadow-md"
-            data-search={`${article.titulo} ${excerpt} ${date}`.toLowerCase()}
-          >
-            <div class="grid gap-0 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-              <a href={`/articles/${article.slug}`} class="block bg-[#F8F9FA]">
-                {cover ? (
-                  <img
-                    src={cover}
-                    alt={`Portada de ${article.titulo}`}
-                    class="h-full w-full object-cover md:min-h-[220px]"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="flex min-h-[220px] items-center justify-center px-6 text-center text-sm text-gray-400">
-                    Imagen no disponible
-                  </div>
-                )}
-              </a>
-
-              <div class="flex flex-col justify-between p-6 sm:p-7">
-                <div>
-                  <div class="flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gray-500">
-                    <span>{date}</span>
-                    <span class="h-px w-8 bg-[#D9E2EC]"></span>
-                    <span>Artículo</span>
-                  </div>
-
-                  <h2 class="mt-3 text-2xl font-semibold leading-tight text-[#0056B3] sm:text-[1.65rem]">
-                    <a href={`/articles/${article.slug}`} class="transition-colors hover:text-[#003366]">{article.titulo}</a>
-                  </h2>
-
-                  <p class="mt-4 max-w-3xl text-[1.02rem] leading-7 text-[#333333]">
-                    {excerpt}
-                  </p>
-                </div>
-
-                <div class="mt-6 flex items-center justify-between gap-4 text-sm text-gray-500">
-                  <span>Lectura académica</span>
-                  <a href={`/articles/${article.slug}`} class="font-medium text-[#0056B3] transition-colors hover:text-[#003366]">Leer artículo</a>
-                </div>
-              </div>
-            </div>
-          </article>
-        );
-      })}
-    </div>
+    <div class="mt-8 space-y-6" id="article-list" aria-live="polite"></div>
 
     <div id="no-results" class="hidden border border-dashed border-[#D9E2EC] bg-white px-6 py-10 text-center text-gray-500">
       No se encontraron artículos con esa búsqueda.
     </div>
   </section>
 
-  <script is:inline>
-    const searchInput = document.getElementById("searchInput");
-    const articleItems = Array.from(document.querySelectorAll(".article-item"));
+  <script type="module">
+    const projectId = "8knpnv8f";
+    const dataset = "production";
+    const query = '*[_type == "article" && defined(slug.current)] | order(fechaPublicacion desc){titulo, "slug": slug.current, portada, autores[]{nombre, apellido}, fechaPublicacion, palabrasClave, contenido}';
+    const url = `https://${projectId}.api.sanity.io/v1/data/query/${dataset}?query=${encodeURIComponent(query)}`;
+
+    const articleList = document.getElementById("article-list");
+    const articleCount = document.getElementById("article-count");
     const noResults = document.getElementById("no-results");
+    const searchInput = document.getElementById("searchInput");
 
-    function filterArticles(query) {
-      const normalizedQuery = query.trim().toLowerCase();
-      let visibleCount = 0;
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[character]);
+    }
 
-      articleItems.forEach((item) => {
-        const matches = !normalizedQuery || item.dataset.search.includes(normalizedQuery);
-        item.classList.toggle("hidden", !matches);
+    function imageUrlFromAssetRef(assetRef) {
+      if (!assetRef) return "";
 
-        if (matches) {
-          visibleCount += 1;
+      const match = assetRef.match(/^image-(.+)-([0-9]+x[0-9]+)-([a-z0-9]+)$/i);
+      if (!match) return "";
+
+      const [, assetId, dimensions, format] = match;
+      const normalizedFormat = format === "jpeg" ? "jpg" : format;
+
+      return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-${dimensions}.${normalizedFormat}`;
+    }
+
+    function excerptFromPortableText(blocks = []) {
+      if (!Array.isArray(blocks)) return "Lectura académica disponible en el archivo de la revista.";
+
+      const text = blocks
+        .map((block) => (block?.children || []).map((child) => child?.text || "").join(" "))
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!text) return "Lectura académica disponible en el archivo de la revista.";
+
+      const excerpt = text.slice(0, 180).trim();
+      return excerpt.length < text.length ? `${excerpt}...` : excerpt;
+    }
+
+    function renderArticles(items, filterValue = "") {
+      const normalizedFilter = filterValue.trim().toLowerCase();
+      const visibleItems = normalizedFilter
+        ? items.filter((article) => {
+            const searchText = `${article.titulo} ${article.dateLabel} ${article.excerpt} ${article.slug}`.toLowerCase();
+            return searchText.includes(normalizedFilter);
+          })
+        : items;
+
+      articleCount.textContent = `${items.length} artículos disponibles`;
+      noResults.classList.toggle("hidden", visibleItems.length !== 0);
+
+      articleList.innerHTML = visibleItems
+        .map((article) => `
+          <article class="overflow-hidden rounded-2xl border border-[#E5EAF0] bg-white shadow-sm transition-shadow hover:shadow-md">
+            <div class="grid gap-0 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+              <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="block bg-[#F8F9FA] md:h-full">
+                ${article.cover
+                  ? `<img src="${article.cover}" alt="Portada de ${escapeHtml(article.titulo)}" class="aspect-[4/3] h-full w-full object-cover md:min-h-[220px]" loading="lazy" />`
+                  : `<div class="flex min-h-[220px] items-center justify-center px-6 text-center text-sm text-gray-400">Imagen no disponible</div>`}
+              </a>
+
+              <div class="flex flex-col justify-between p-6 sm:p-7">
+                <div>
+                  <div class="flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gray-500">
+                    <span>${escapeHtml(article.dateLabel)}</span>
+                    <span class="h-px w-8 bg-[#D9E2EC]"></span>
+                    <span>Artículo</span>
+                  </div>
+
+                  <h2 class="mt-3 text-2xl font-semibold leading-tight text-[#0056B3] sm:text-[1.65rem]">
+                    <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="transition-colors hover:text-[#003366]">${escapeHtml(article.titulo)}</a>
+                  </h2>
+
+                  <p class="mt-4 max-w-3xl text-[1.02rem] leading-7 text-[#333333]">${escapeHtml(article.excerpt)}</p>
+                </div>
+
+                <div class="mt-6 flex items-center justify-between gap-4 text-sm text-gray-500">
+                  <span>Lectura académica</span>
+                  <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="font-medium text-[#0056B3] transition-colors hover:text-[#003366]">Leer artículo</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        `)
+        .join("");
+    }
+
+    async function loadArticles() {
+      try {
+        const response = await fetch(url);
+        const payload = await response.json();
+        const items = Array.isArray(payload.result) ? payload.result : [];
+
+        const normalizedItems = items.map((article) => {
+          const dateLabel = article.fechaPublicacion
+            ? new Date(article.fechaPublicacion).toLocaleDateString("es-ES", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : "";
+
+          const cover = article.portada?.asset?._ref
+            ? imageUrlFromAssetRef(article.portada.asset._ref)
+            : "";
+
+          return {
+            slug: article.slug,
+            titulo: article.titulo,
+            excerpt: excerptFromPortableText(article.contenido),
+            dateLabel,
+            cover,
+          };
+        });
+
+        renderArticles(normalizedItems, searchInput?.value ?? "");
+
+        if (searchInput) {
+          searchInput.addEventListener("input", (event) => {
+            renderArticles(normalizedItems, event.target.value);
+          });
         }
-      });
-
-      noResults.classList.toggle("hidden", visibleCount !== 0);
+      } catch (error) {
+        articleCount.textContent = "Error cargando artículos";
+        articleList.innerHTML = "";
+        noResults.classList.add("hidden");
+        console.error(error);
+      }
     }
 
-    if (searchInput) {
-      searchInput.addEventListener("input", (event) => {
-        filterArticles(event.target.value);
-      });
-
-      filterArticles(searchInput.value);
-    }
+    loadArticles();
   </script>
 </MainLayout>
