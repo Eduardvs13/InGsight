@@ -1,0 +1,120 @@
+---
+
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content="Aletheia — Revista académica de artículos científicos." />
+    <title>Aletheia — Revista Académica</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-gray-50 font-[Inter,sans-serif] text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 py-6 px-4">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold tracking-tight">Aletheia</h1>
+        <p class="text-gray-500 mt-1 text-sm">Revista Académica</p>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-5xl mx-auto px-4 py-12">
+
+      <section class="mb-10 text-center">
+        <h2 class="text-4xl font-extrabold tracking-tight">Aletheia</h2>
+        <p class="mt-3 text-gray-600 max-w-2xl mx-auto">Revista académica de acceso abierto — artículos, investigación y divulgación científica.</p>
+      </section>
+
+      <div id="articles-root" class="py-6">Cargando artículos…</div>
+
+      <script type="module">
+        const projectId = '8knpnv8f';
+        const dataset = 'production';
+        const groq = '*[_type == "article" && defined(slug.current)]{titulo, "slug": slug.current, portada, autores[]{nombre, apellido}, fechaPublicacion, palabrasClave}[0..50]';
+        const url = `https://${projectId}.api.sanity.io/v1/data/query/${dataset}?query=${encodeURIComponent(groq)}`;
+
+        function escapeHtml(s = '') { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+        async function fetchArticles() {
+          try {
+            const res = await fetch(url);
+            const json = await res.json();
+            const items = json.result || [];
+            const root = document.getElementById('articles-root');
+            if (!items.length) { root.innerHTML = '<p class="text-gray-400 text-center py-20">No hay artículos publicados aún.</p>'; return; }
+
+            const html = items.map(article => {
+              const autores = (article.autores || []).map(a => [a.nombre, a.apellido].filter(Boolean).join(' ')).join(', ');
+              const cover = article.portada && article.portada.asset && article.portada.asset._ref ? `https://cdn.sanity.io/images/${projectId}/${dataset}/${article.portada.asset._ref.replace(/^image-/, '').replace(/-jpg$|-png$|-jpeg$|-.+$/,'')}.jpg` : null;
+              // Note: using asset ref to build URL is simplified; using the image URL from API would be more robust.
+              return `
+                <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
+                  <a href="/articles/${escapeHtml(article.slug)}" class="block">
+                    ${cover ? `<img src="${cover}" alt="Portada de ${escapeHtml(article.titulo)}" class="w-full h-48 md:h-56 object-cover"/>` : '<div class="w-full h-48 md:h-56 bg-gray-100 flex items-center justify-center text-gray-400">No image</div>'}
+                    <div class="p-6">
+                      <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600">${escapeHtml(article.titulo)}</h3>
+                      ${autores ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(autores)}</p>` : ''}
+                      <div class="mt-4 flex items-center justify-between">
+                        <div class="text-xs text-gray-400">${article.fechaPublicacion ? new Date(article.fechaPublicacion).toLocaleDateString('es-ES',{year:'numeric',month:'short',day:'numeric'}) : ''}</div>
+                        <div class="flex gap-2">${(article.palabrasClave||[]).slice(0,3).map(tag=>`<span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">${escapeHtml(tag)}</span>`).join('')}</div>
+                      </div>
+                    </div>
+                  </a>
+                </article>`;
+            }).join('');
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-8';
+            grid.innerHTML = html;
+            root.innerHTML = '';
+            root.appendChild(grid);
+          } catch (err) {
+            document.getElementById('articles-root').innerText = 'Error cargando artículos';
+            console.error(err);
+          }
+        }
+
+        fetchArticles();
+      </script>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 py-6 mt-10 text-center text-xs text-gray-400">
+      © {new Date().getFullYear()} Aletheia. Todos los derechos reservados.
+    </footer>
+
+  </body>
+</html>
+      function filterArticles(query) {
+        let visibleCount = 0;
+        articles.forEach((article) => {
+          const title = article.getAttribute('data-title') || '';
+          const excerpt = article.getAttribute('data-excerpt') || '';
+          
+          if (title.includes(query) || excerpt.includes(query)) {
+            article.style.display = 'block';
+            visibleCount++;
+          } else {
+            article.style.display = 'none';
+          }
+        });
+        
+        if (noResults) {
+          if (visibleCount === 0 && articles.length > 0) {
+            noResults.style.display = 'block';
+          } else {
+            noResults.style.display = 'none';
+          }
+        }
+      }
+    </script>
+  </Fragment>
+</MainLayout>
