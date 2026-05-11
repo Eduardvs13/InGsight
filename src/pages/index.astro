@@ -54,30 +54,8 @@
               const autores = (article.autores || []).map(a => [a.nombre, a.apellido].filter(Boolean).join(' ')).join(', ');
               const cover = article.portada && article.portada.asset && article.portada.asset._ref ? `https://cdn.sanity.io/images/${projectId}/${dataset}/${article.portada.asset._ref.replace(/^image-/, '').replace(/-jpg$|-png$|-jpeg$|-.+$/,'')}.jpg` : null;
               // Note: using asset ref to build URL is simplified; using the image URL from API would be more robust.
-              return `
-                <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
-                  <a href="/articles/${escapeHtml(article.slug)}" class="block">
-                    ${cover ? `<img src="${cover}" alt="Portada de ${escapeHtml(article.titulo)}" class="w-full h-48 md:h-56 object-cover"/>` : '<div class="w-full h-48 md:h-56 bg-gray-100 flex items-center justify-center text-gray-400">No image</div>'}
-                    <div class="p-6">
-                      <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600">${escapeHtml(article.titulo)}</h3>
-                      ${autores ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(autores)}</p>` : ''}
-                      <div class="mt-4 flex items-center justify-between">
-                        <div class="text-xs text-gray-400">${article.fechaPublicacion ? new Date(article.fechaPublicacion).toLocaleDateString('es-ES',{year:'numeric',month:'short',day:'numeric'}) : ''}</div>
-                        <div class="flex gap-2">${(article.palabrasClave||[]).slice(0,3).map(tag=>`<span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">${escapeHtml(tag)}</span>`).join('')}</div>
-                      </div>
-                    </div>
-                  </a>
-                </article>`;
-            }).join('');
-
-            const grid = document.createElement('div');
-            grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-8';
-            grid.innerHTML = html;
-            root.innerHTML = '';
-            root.appendChild(grid);
-          } catch (err) {
-            document.getElementById('articles-root').innerText = 'Error cargando artículos';
-            console.error(err);
+              </body>
+            </html>
           }
         }
 
@@ -94,21 +72,18 @@
   </body>
 </html>
       function filterArticles(query) {
-        let visibleCount = 0;
         articles.forEach((article) => {
           const title = article.getAttribute('data-title') || '';
           const excerpt = article.getAttribute('data-excerpt') || '';
           
           if (title.includes(query) || excerpt.includes(query)) {
             article.style.display = 'block';
-            visibleCount++;
           } else {
             article.style.display = 'none';
           }
         });
         
         if (noResults) {
-          if (visibleCount === 0 && articles.length > 0) {
             noResults.style.display = 'block';
           } else {
             noResults.style.display = 'none';
