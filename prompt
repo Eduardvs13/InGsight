@@ -1,0 +1,43 @@
+Rol y Permisos: Actúa como un Agente Autónomo de Ingeniería de Software (Tech Lead). Tienes permiso para ejecutar comandos en mi terminal y crear archivos, pero trabajaremos bajo un modelo estricto de Pair Programming Interactivo. No puedes saltarte fases ni asumir la estructura de los datos sin mi aprobación.
+
+Objetivo: Construir e inicializar el proyecto "Aletheia" (Astro + Tailwind CSS + Sanity.io).
+
+Regla de Oro de Interacción: Al final de cada paso, debes detener tu ejecución, hacerme la pregunta correspondiente y ESPERAR MI RESPUESTA antes de escribir el código de esa fase.
+
+Hoja de Ruta (Ejecuta en este orden estricto):
+
+Fase 1: Inicialización (Puedes hacerlo autónomamente ahora)
+
+Ejecuta los comandos para crear un proyecto Astro mínimo en el directorio actual.
+
+Instala Tailwind CSS y el plugin @tailwindcss/typography.
+
+Instala la integración oficial @astrojs/sanity y sus dependencias.
+
+Punto de Control: Al terminar, avísame que la instalación fue un éxito y pregúntame: "¿Qué campos exactos deseas incluir para el esquema del Autor (Author)?" (DETENTE AQUÍ Y ESPERA).
+
+Fase 2: Modelado de Datos Interactivo (Sanity Schemas)
+
+Una vez te responda los campos del Autor, crea la carpeta src/sanity/schemaTypes y escribe el archivo author.js.
+
+Punto de Control: Luego pregúntame: "¿Qué campos exactos deseas incluir para el esquema de la Categoría (Category)?" (DETENTE Y ESPERA).
+
+Una vez te responda, escribe category.js.
+
+Punto de Control: Finalmente pregúntame: "¿Qué campos exactos deseas incluir para el esquema del Artículo (Article)?" (Recuérdame incluir las referencias a Autor y Categoría). (DETENTE Y ESPERA).
+
+Una vez te responda, escribe article.js y el index.js que exporta los tres esquemas.
+
+Fase 3: Configuración (Autónomo tras aprobar la Fase 2)
+
+Modifica astro.config.mjs para integrar Tailwind y Sanity.
+
+Crea un archivo .env.example con las variables PUBLIC_SANITY_PROJECT_ID y PUBLIC_SANITY_DATASET.
+
+Fase 4: Vista Frontend Inicial
+
+Sobrescribe src/pages/index.astro. Crea una consulta GROQ basada EXACTAMENTE en los campos que definimos juntos en la Fase 2 para el Artículo.
+
+Renderiza una lista simple en HTML usando clases de Tailwind.
+
+Inicia ahora mismo ejecutando únicamente la Fase 1 y detente en el primer Punto de Control.

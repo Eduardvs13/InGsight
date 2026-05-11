@@ -1,0 +1,114 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import client, { urlFor } from '../sanity/sanityClient.js';
+import { getAllArticles } from '../sanity/queries.js';
+
+const articles = await client.fetch(getAllArticles);
+---
+
+<MainLayout title="Inicio | Aletheia">
+  <div class="mb-12 border-b border-gray-200 pb-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-[#003366] mb-3">Últimos Artículos</h1>
+    <p class="text-gray-600">Explora nuestra selección de textos académicos y de investigación, curados para una lectura profunda y sin distracciones.</p>
+  </div>
+
+  <div id="articles-container" class="flex flex-col gap-10">
+    {articles.length === 0 ? (
+      <div class="py-16 text-center text-gray-500 text-lg">
+        No hay artículos publicados aún.
+      </div>
+    ) : (
+      articles.map((article) => {
+        const autoresStr = article.autores
+          ?.map((a) => [a.nombre, a.apellido].filter(Boolean).join(' '))
+          .filter(Boolean)
+          .join(', ') || 'Autor Desconocido';
+        
+        const dateStr = article.fechaPublicacion 
+          ? new Date(article.fechaPublicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) 
+          : 'Sin fecha';
+
+        const excerpt = article.contenido
+          ?.find((block) => block._type === 'block')
+          ?.children?.map((child) => child.text)
+          .join('')
+          .substring(0, 180) + '...' || '';
+
+        return (
+          <article class="article-card border-b border-gray-100 pb-10 last:border-0 break-words overflow-hidden" data-title={article.titulo?.toLowerCase()} data-excerpt={excerpt.toLowerCase()}>
+            <a href={`/articles/${article.slug}`} class="block group">
+              {article.portada && (
+                <div class="mb-5 overflow-hidden rounded-md">
+                  <img src={urlFor(article.portada).width(800).height(400).url()} alt={article.titulo} class="w-full h-48 md:h-64 object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+              )}
+              <div class="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                <span class="font-medium text-[#0056B3]">{autoresStr}</span>
+                <span>•</span>
+                <time>{dateStr}</time>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-bold text-[#333333] group-hover:text-[#0056B3] transition-colors mb-3">{article.titulo}</h2>
+              <p class="text-gray-600 leading-relaxed text-lg">{excerpt}</p>
+            </a>
+          </article>
+        );
+      })
+    )}
+    
+    <div id="no-results" class="hidden py-16 text-center text-gray-500 text-lg">
+      No se encontraron artículos que coincidan con tu búsqueda.
+    </div>
+  </div>
+
+  <Fragment slot="scripts">
+    <script>
+      const searchInput = document.getElementById('searchInput');
+      const articles = document.querySelectorAll('.article-card');
+      const noResults = document.getElementById('no-results');
+
+      if (searchInput) {
+        // Leer el parámetro de búsqueda de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const q = urlParams.get('q');
+        
+        if (q) {
+          searchInput.value = q;
+          filterArticles(q.toLowerCase());
+        }
+
+        // Filtrado en tiempo real
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase();
+          filterArticles(query);
+          
+          // Actualizar URL sin recargar
+          const newUrl = query ? `/?q=${encodeURIComponent(query)}` : '/';
+          window.history.replaceState({}, '', newUrl);
+        });
+      }
+
+      function filterArticles(query) {
+        let visibleCount = 0;
+        articles.forEach((article) => {
+          const title = article.getAttribute('data-title') || '';
+          const excerpt = article.getAttribute('data-excerpt') || '';
+          
+          if (title.includes(query) || excerpt.includes(query)) {
+            article.style.display = 'block';
+            visibleCount++;
+          } else {
+            article.style.display = 'none';
+          }
+        });
+        
+        if (noResults) {
+          if (visibleCount === 0 && articles.length > 0) {
+            noResults.style.display = 'block';
+          } else {
+            noResults.style.display = 'none';
+          }
+        }
+      }
+    </script>
+  </Fragment>
+</MainLayout>
