@@ -3,21 +3,35 @@ import MainLayout from "../../layouts/MainLayout.astro";
 import portableTextToHtml from "../../sanity/portableTextToHtml";
 import client, { urlFor } from "../../sanity/sanityClient";
 import { getAllArticleSlugs, getArticleBySlug } from "../../sanity/queries";
+import { mockArticles } from "../../data/mockArticles.js";
 
 export async function getStaticPaths() {
+  const mockPaths = mockArticles.map((article) => ({ params: { slug: article.slug } }));
+
   try {
     const slugs = await client.fetch(getAllArticleSlugs);
-    return (slugs ?? [])
+    const sanityPaths = (slugs ?? [])
       .filter((slug) => typeof slug === "string" && slug.length > 0)
       .map((slug) => ({ params: { slug } }));
+
+    const pathMap = new Map();
+    [...mockPaths, ...sanityPaths].forEach((entry) => {
+      pathMap.set(entry.params.slug, entry);
+    });
+
+    return Array.from(pathMap.values());
   } catch (error) {
     console.error("Failed to fetch article slugs:", error);
-    return [];
+    return mockPaths;
   }
 }
 
 const { slug } = Astro.params;
-const article = slug ? await client.fetch(getArticleBySlug, { slug }) : null;
+const mockArticle = mockArticles.find((article) => article.slug === slug);
+const sanityArticle = slug
+  ? await client.fetch(getArticleBySlug, { slug }).catch(() => null)
+  : null;
+const article = sanityArticle ?? mockArticle ?? null;
 
 const dateStr = article?.fechaPublicacion
   ? new Date(article.fechaPublicacion).toLocaleDateString("es-ES", {
@@ -25,55 +39,63 @@ const dateStr = article?.fechaPublicacion
       month: "long",
       day: "numeric",
     })
-  : "";
+  : article?.date ?? "";
 
 const autoresStr = (article?.autores ?? [])
   .map((a) => [a?.nombre, a?.apellido].filter(Boolean).join(" "))
   .filter(Boolean)
-  .join(", ");
+  .join(", ") || article?.author || "";
 
-const htmlContent = article?.contenido
-  ? portableTextToHtml(article.contenido)
-  : "<p>No hay contenido disponible.</p>";
+const htmlContent = article
+  ? "content" in article && typeof article.content === "string"
+    ? article.content
+    : article.contenido
+      ? portableTextToHtml(article.contenido)
+      : "<p>No hay contenido disponible.</p>"
+  : "";
+
+const articleTitle = article?.titulo ?? article?.title ?? "Artículo";
+const articleExcerpt = article?.excerpt ?? "";
 ---
 
-<MainLayout title={`${article?.titulo ?? "Artículo"} | Aletheia`}>
+<MainLayout title={`${articleTitle} | Aletheia`}>
   {
     article ? (
-      <article class="max-w-[800px] mx-auto bg-white p-8 md:p-12 shadow-sm rounded-lg border border-gray-100">
-        <header class="mb-10 text-center border-b border-gray-200 pb-8">
-          <div class="text-[#0056B3] font-medium mb-3 uppercase tracking-wider text-sm">{dateStr}</div>
-          <h1 class="text-3xl md:text-5xl font-bold text-[#003366] leading-tight mb-6">{article.titulo}</h1>
-          <div class="text-lg text-gray-500">Por <span class="font-semibold text-gray-800">{autoresStr}</span></div>
+      <article class="mx-auto max-w-[800px] px-4 py-10 sm:px-6 lg:px-0">
+        <header class="border-b border-[#D9E2EC] pb-8">
+          <div class="text-sm font-medium uppercase tracking-[0.18em] text-[#0056B3]">{dateStr}</div>
+          <h1 class="mt-4 text-3xl font-semibold leading-tight text-[#003366] sm:text-5xl">{articleTitle}</h1>
+          <p class="mt-5 text-lg leading-8 text-[#333333]">{articleExcerpt}</p>
+          <div class="mt-6 text-sm text-gray-500">Por <span class="font-medium text-gray-700">{autoresStr}</span></div>
         </header>
 
         {
-          article.portada && (
+          "portada" in article && article.portada && (
             <figure class="mb-10">
               <img
                 src={urlFor(article.portada).width(1200).height(675).url()}
-                alt={`Portada de ${article.titulo}`}
-                class="w-full rounded-lg shadow-sm"
+                alt={`Portada de ${articleTitle}`}
+                class="mt-8 w-full rounded-md border border-[#E5EAF0] object-cover"
               />
             </figure>
           )
         }
 
-        <div class="prose prose-lg max-w-none text-[#333333] leading-relaxed prose-headings:text-[#003366] prose-a:text-[#0056B3] prose-a:no-underline hover:prose-a:underline prose-p:mb-6 break-words overflow-x-hidden">
+        <div class="prose prose-lg max-w-none pt-8 text-[#333333] leading-8 prose-headings:text-[#003366] prose-a:text-[#0056B3] prose-a:no-underline hover:prose-a:underline prose-p:mb-6 break-words overflow-x-hidden">
           <Fragment set:html={htmlContent} />
         </div>
 
-        <footer class="mt-16 pt-8 border-t border-gray-200 text-center">
-          <a href="/" class="inline-block px-8 py-3 bg-[#0056B3] text-white font-medium rounded hover:bg-[#003366] transition-colors shadow-sm">
-            ← Volver a todos los artículos
+        <footer class="mt-16 border-t border-[#D9E2EC] pt-8 text-center">
+          <a href="/" class="inline-block rounded-md bg-[#0056B3] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#003366]">
+            Volver a todos los artículos
           </a>
         </footer>
       </article>
     ) : (
-      <article class="max-w-[800px] mx-auto bg-white p-8 md:p-12 shadow-sm rounded-lg border border-gray-100 text-center">
-        <h1 class="text-2xl font-bold text-[#003366]">Artículo no encontrado</h1>
+      <article class="mx-auto max-w-[800px] px-4 py-10 text-center sm:px-6 lg:px-0">
+        <h1 class="text-2xl font-semibold text-[#003366]">Artículo no encontrado</h1>
         <p class="mt-4 text-gray-600">El artículo solicitado no existe o fue removido.</p>
-        <a href="/" class="inline-block mt-8 px-6 py-2 bg-[#0056B3] text-white font-medium rounded hover:bg-[#003366] transition-colors">
+        <a href="/" class="mt-8 inline-block rounded-md bg-[#0056B3] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#003366]">
           Volver al inicio
         </a>
       </article>

@@ -1,52 +1,55 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 const { title } = Astro.props;
+const currentSearch = Astro.url.searchParams.get("q") ?? "";
 ---
+
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="description" content="Portal de lectura minimalista" />
-  <title>{title}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-  </style>
-</head>
-<body class="bg-[#F8F9FA] text-[#333333] min-h-screen flex flex-col antialiased">
-  <header class="bg-[#0056B3] text-white py-4 px-6 shadow-sm">
-    <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-      <a href="/" class="text-2xl font-bold tracking-tight hover:text-gray-200 transition-colors">Aletheia</a>
-      
-      <nav class="flex gap-6 text-sm font-medium">
-        <a href="/" class="hover:text-gray-300 transition-colors">Inicio</a>
-        <a href="/" class="hover:text-gray-300 transition-colors">Todos los artículos</a>
-      </nav>
-      
-      <form action="/" method="GET" class="relative w-full md:w-auto">
-        <input 
-          type="search" 
-          name="q" 
-          id="searchInput" 
-          placeholder="Buscar artículos..." 
-          class="w-full md:w-64 px-4 py-2 bg-white text-gray-900 border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent text-sm placeholder-gray-500" 
-        />
-      </form>
-    </div>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content="Portal de lectura minimalista" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen flex flex-col bg-[#F8F9FA] text-[#333333] antialiased font-[Inter,sans-serif]">
+    <header class="border-b border-[#D9E2EC] bg-white">
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+          <a href="/" class="text-xl font-semibold tracking-tight text-[#003366] hover:text-[#0056B3] transition-colors">Aletheia</a>
 
-  <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-12">
-    <slot />
-  </main>
+          <nav class="flex items-center justify-center gap-6 text-sm font-medium text-[#003366]">
+            <a href="/" class="hover:text-[#0056B3] transition-colors">Inicio</a>
+            <a href="/" class="hover:text-[#0056B3] transition-colors">Todos los artículos</a>
+          </nav>
 
-  <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500 mt-auto">
-    <p>© {new Date().getFullYear()} Aletheia. Todos los derechos reservados.</p>
-  </footer>
+          <form action="/" method="GET" class="w-full md:w-auto md:min-w-[280px]">
+            <label class="sr-only" for="searchInput">Buscar artículos</label>
+            <input
+              type="search"
+              name="q"
+              id="searchInput"
+              value={currentSearch}
+              placeholder="Buscar artículos..."
+              class="w-full rounded-md border border-[#D9E2EC] bg-white px-4 py-2 text-sm text-[#333333] placeholder:text-gray-400 focus:border-[#0056B3] focus:outline-none focus:ring-2 focus:ring-[#0056B3]/15"
+            />
+          </form>
+        </div>
+      </div>
+    </header>
 
-  <slot name="scripts" />
-</body>
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="border-t border-[#D9E2EC] bg-white py-6 text-center text-sm text-gray-500">
+      <p>© {new Date().getFullYear()} Aletheia. Todos los derechos reservados.</p>
+    </footer>
+
+    <slot name="scripts" />
+  </body>
 </html>
