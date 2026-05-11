@@ -1,124 +1,137 @@
 ---
-import "../styles/global.css";
+import MainLayout from "../layouts/MainLayout.astro";
+import client from "../sanity/sanityClient";
+import { getAllArticles } from "../sanity/queries";
+import { urlFor } from "../sanity/sanityClient";
+
+const articles = await client.fetch(getAllArticles);
+
+function plainTextFromPortableText(blocks = []) {
+  if (!Array.isArray(blocks)) return "";
+
+  return blocks
+    .map((block) => (block?.children || []).map((child) => child?.text || "").join(" "))
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function excerptFromPortableText(blocks = []) {
+  const text = plainTextFromPortableText(blocks);
+  if (!text) return "Lectura académica disponible en el archivo de la revista.";
+
+  const excerpt = text.slice(0, 180).trim();
+  return excerpt.length < text.length ? `${excerpt}...` : excerpt;
+}
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="Aletheia - Revista academica de articulos cientificos." />
-    <title>Aletheia - Revista Academica</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body class="bg-gray-50 font-[Inter,sans-serif] text-gray-900">
-    <header class="bg-white border-b border-gray-200 py-6 px-4">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold tracking-tight">Aletheia</h1>
-        <p class="text-gray-500 mt-1 text-sm">Revista Academica</p>
-      </div>
-    </header>
+<MainLayout title="Aletheia - Revista Academica">
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#0056B3]">Revista académica</p>
+      <h1 class="mt-3 text-4xl font-semibold tracking-tight text-[#003366] sm:text-5xl">Lectura simple, fondo blanco, acento azul.</h1>
+      <p class="mt-4 max-w-2xl text-base leading-7 text-[#333333] sm:text-lg">
+        Un archivo editorial limpio para leer artículos científicos con prioridad absoluta en claridad, navegación y tipografía.
+      </p>
+    </div>
 
-    <main class="max-w-5xl mx-auto px-4 py-12">
-      <section class="mb-10 text-center">
-        <h2 class="text-4xl font-extrabold tracking-tight">Aletheia</h2>
-        <p class="mt-3 text-gray-600 max-w-2xl mx-auto">
-          Revista academica de acceso abierto - articulos, investigacion y divulgacion cientifica.
-        </p>
-      </section>
+    <div class="mt-10 border-b border-[#D9E2EC] pb-3 text-sm text-gray-500">
+      {articles.length} artículos disponibles
+    </div>
 
-      <div id="articles-root" class="py-6">Cargando articulos...</div>
+    <div class="mt-8 space-y-6" id="article-list">
+      {articles.map((article) => {
+        const cover = article.portada ? urlFor(article.portada).width(960).height(640).fit("crop").url() : null;
+        const date = article.fechaPublicacion
+          ? new Date(article.fechaPublicacion).toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : "";
+        const excerpt = excerptFromPortableText(article.contenido);
 
-      <script type="module">
-        const projectId = "8knpnv8f";
-        const dataset = "production";
-        const groq = '*[_type == "article" && defined(slug.current)]{titulo, "slug": slug.current, portada, autores[]{nombre, apellido}, fechaPublicacion, palabrasClave}[0..50]';
-        const url = `https://${projectId}.api.sanity.io/v1/data/query/${dataset}?query=${encodeURIComponent(groq)}`;
+        return (
+          <article
+            class="article-item overflow-hidden rounded-2xl border border-[#E5EAF0] bg-white shadow-sm transition-shadow hover:shadow-md"
+            data-search={`${article.titulo} ${excerpt} ${date}`.toLowerCase()}
+          >
+            <div class="grid gap-0 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+              <a href={`/articles/${article.slug}`} class="block bg-[#F8F9FA]">
+                {cover ? (
+                  <img
+                    src={cover}
+                    alt={`Portada de ${article.titulo}`}
+                    class="h-full w-full object-cover md:min-h-[220px]"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="flex min-h-[220px] items-center justify-center px-6 text-center text-sm text-gray-400">
+                    Imagen no disponible
+                  </div>
+                )}
+              </a>
 
-        function escapeHtml(s = "") {
-          return String(s).replace(/[&<>"']/g, (c) => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;",
-          })[c]);
+              <div class="flex flex-col justify-between p-6 sm:p-7">
+                <div>
+                  <div class="flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gray-500">
+                    <span>{date}</span>
+                    <span class="h-px w-8 bg-[#D9E2EC]"></span>
+                    <span>Artículo</span>
+                  </div>
+
+                  <h2 class="mt-3 text-2xl font-semibold leading-tight text-[#0056B3] sm:text-[1.65rem]">
+                    <a href={`/articles/${article.slug}`} class="transition-colors hover:text-[#003366]">{article.titulo}</a>
+                  </h2>
+
+                  <p class="mt-4 max-w-3xl text-[1.02rem] leading-7 text-[#333333]">
+                    {excerpt}
+                  </p>
+                </div>
+
+                <div class="mt-6 flex items-center justify-between gap-4 text-sm text-gray-500">
+                  <span>Lectura académica</span>
+                  <a href={`/articles/${article.slug}`} class="font-medium text-[#0056B3] transition-colors hover:text-[#003366]">Leer artículo</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <div id="no-results" class="hidden border border-dashed border-[#D9E2EC] bg-white px-6 py-10 text-center text-gray-500">
+      No se encontraron artículos con esa búsqueda.
+    </div>
+  </section>
+
+  <script is:inline>
+    const searchInput = document.getElementById("searchInput");
+    const articleItems = Array.from(document.querySelectorAll(".article-item"));
+    const noResults = document.getElementById("no-results");
+
+    function filterArticles(query) {
+      const normalizedQuery = query.trim().toLowerCase();
+      let visibleCount = 0;
+
+      articleItems.forEach((item) => {
+        const matches = !normalizedQuery || item.dataset.search.includes(normalizedQuery);
+        item.classList.toggle("hidden", !matches);
+
+        if (matches) {
+          visibleCount += 1;
         }
+      });
 
-        async function fetchArticles() {
-          try {
-            const res = await fetch(url);
-            const json = await res.json();
-            const items = json.result || [];
-            const root = document.getElementById("articles-root");
+      noResults.classList.toggle("hidden", visibleCount !== 0);
+    }
 
-            if (!items.length) {
-              root.innerHTML = '<p class="text-gray-400 text-center py-20">No hay articulos publicados aun.</p>';
-              return;
-            }
+    if (searchInput) {
+      searchInput.addEventListener("input", (event) => {
+        filterArticles(event.target.value);
+      });
 
-            const html = items.map((article) => {
-              const autores = (article.autores || [])
-                .map((a) => [a.nombre, a.apellido].filter(Boolean).join(" "))
-                .join(", ");
-
-              const cover = article.portada && article.portada.asset && article.portada.asset._ref
-                ? `https://cdn.sanity.io/images/${projectId}/${dataset}/${article.portada.asset._ref
-                    .replace(/^image-/, "")
-                    .replace(/-jpg$|-png$|-jpeg$|-.+$/, "")}.jpg`
-                : null;
-
-              return `
-                <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
-                  <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="block">
-                    ${cover
-                      ? `<img src="${cover}" alt="Portada de ${escapeHtml(article.titulo)}" class="w-full h-48 md:h-56 object-cover"/>`
-                      : '<div class="w-full h-48 md:h-56 bg-gray-100 flex items-center justify-center text-gray-400">No image</div>'}
-                    <div class="p-6">
-                      <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600">${escapeHtml(article.titulo)}</h3>
-                      ${autores ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(autores)}</p>` : ""}
-                      <div class="mt-4 flex items-center justify-between">
-                        <div class="text-xs text-gray-400">${
-                          article.fechaPublicacion
-                            ? new Date(article.fechaPublicacion).toLocaleDateString("es-ES", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })
-                            : ""
-                        }</div>
-                        <div class="flex gap-2">
-                          ${(article.palabrasClave || [])
-                            .slice(0, 3)
-                            .map((tag) => `<span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">${escapeHtml(tag)}</span>`)
-                            .join("")}
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                </article>`;
-            }).join("");
-
-            const grid = document.createElement("div");
-            grid.className = "grid grid-cols-1 md:grid-cols-2 gap-8";
-            grid.innerHTML = html;
-            root.innerHTML = "";
-            root.appendChild(grid);
-          } catch (err) {
-            document.getElementById("articles-root").innerText = "Error cargando articulos";
-            console.error(err);
-          }
-        }
-
-        fetchArticles();
-      </script>
-    </main>
-
-    <footer class="border-t border-gray-200 py-6 mt-10 text-center text-xs text-gray-400">
-      © {new Date().getFullYear()} Aletheia. Todos los derechos reservados.
-    </footer>
-  </body>
-</html>
+      filterArticles(searchInput.value);
+    }
+  </script>
+</MainLayout>
