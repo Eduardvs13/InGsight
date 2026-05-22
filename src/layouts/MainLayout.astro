@@ -1,9 +1,10 @@
 ---
 import '../styles/global.css';
 
-const { title, description } = Astro.props;
+const { title, description, image, type = "website", publishDate } = Astro.props;
 const metaDesc = description || 'InGsight es la revista académica de ingeniería en español. Artículos de investigación, análisis técnico y divulgación científica para ingenieros y estudiantes.';
 const canonicalUrl = Astro.url.href;
+const metaImage = image || new URL('/favicon.svg', Astro.site || 'https://ingsight-web.vercel.app').href;
 ---
 <!DOCTYPE html>
 <html lang="es">
@@ -22,16 +23,19 @@ const canonicalUrl = Astro.url.href;
   <meta name="theme-color" content="#040d1a" />
 
   <!-- Open Graph -->
-  <meta property="og:type"        content="website" />
+  <meta property="og:type"        content={type} />
   <meta property="og:site_name"   content="InGsight" />
   <meta property="og:title"       content={title} />
   <meta property="og:description" content={metaDesc} />
   <meta property="og:url"         content={canonicalUrl} />
+  <meta property="og:image"       content={metaImage} />
+  {publishDate && <meta property="article:published_time" content={publishDate} />}
 
   <!-- Twitter Card -->
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content={title} />
   <meta name="twitter:description" content={metaDesc} />
+  <meta name="twitter:image"       content={metaImage} />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />

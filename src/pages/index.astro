@@ -185,7 +185,7 @@ import MainLayout from "../layouts/MainLayout.astro";
             class="glass card-lift animate-fade-in-up"
             style="position: relative; border-radius: var(--radius-lg); overflow: hidden; animation-delay: ${i * 0.07}s;"
           >
-            <a href="/articles?slug=${encodeURIComponent(article.slug)}" style="position: absolute; inset: 0; z-index: 1;" aria-label="Leer artículo completo"></a>
+            <a href="/articles/${encodeURIComponent(article.slug)}" style="position: absolute; inset: 0; z-index: 1;" aria-label="Leer artículo completo"></a>
             <div style="display: grid; grid-template-columns: 1fr; min-height: 180px; position: relative; z-index: 2; pointer-events: none;">
               ${hasCover ? `
                 <div style="position: relative; overflow: hidden; height: 220px;">
@@ -215,7 +215,7 @@ import MainLayout from "../layouts/MainLayout.astro";
                 <!-- Title -->
                 <div style="pointer-events: auto;">
                   <h2 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.75rem;">
-                    <a href="/articles?slug=${encodeURIComponent(article.slug)}" style="color: var(--text-primary); text-decoration: none;">
+                    <a href="/articles/${encodeURIComponent(article.slug)}" style="color: var(--text-primary); text-decoration: none;">
                       ${escapeHtml(article.titulo)}
                     </a>
                   </h2>
@@ -246,7 +246,7 @@ import MainLayout from "../layouts/MainLayout.astro";
                     <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">${escapeHtml(authors)}</span>
                   </div>
                   <div style="pointer-events: auto;">
-                    <a href="/articles?slug=${encodeURIComponent(article.slug)}" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 600; color: var(--color-blue-400); text-decoration: none; transition: all 200ms; padding: 0.35rem 0.85rem; border-radius: 8px; border: 1px solid rgba(59,130,246,0.25);"
+                    <a href="/articles/${encodeURIComponent(article.slug)}" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 600; color: var(--color-blue-400); text-decoration: none; transition: all 200ms; padding: 0.35rem 0.85rem; border-radius: 8px; border: 1px solid rgba(59,130,246,0.25);"
                       onmouseover="this.style.background='rgba(37,99,235,0.15)'; this.style.color='var(--color-blue-300)'"
                       onmouseout="this.style.background='transparent'; this.style.color='var(--color-blue-400)'">
                       Leer artículo
