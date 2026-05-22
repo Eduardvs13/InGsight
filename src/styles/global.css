@@ -65,11 +65,27 @@
   --shadow-card-hover: 0 16px 48px -8px rgba(37,99,235,0.3), 0 4px 16px rgba(0,0,0,0.4);
   --shadow-glow:  0 0 40px rgba(37,99,235,0.2);
 
+  /* Component specific (Dynamic) */
+  --hero-bg: radial-gradient(at 40% 20%, hsla(217,91%,45%,0.12) 0px, transparent 50%),
+             radial-gradient(at 80% 0%,  hsla(199,89%,48%,0.10) 0px, transparent 50%),
+             radial-gradient(at 0%  50%, hsla(217,91%,35%,0.08) 0px, transparent 50%);
+  --hero-glow-1: rgba(37,99,235,0.12);
+  --hero-glow-2: rgba(14,165,233,0.08);
+  --stats-bar-bg: rgba(10,22,40,0.6);
+  --text-title: var(--color-white);
+  --pill-bg: rgba(255,255,255,0.05);
+  --pill-accent-bg: rgba(37,99,235,0.15);
+  --pill-accent-text: var(--color-blue-300);
+
   /* Radius */
   --radius-sm:  8px;
   --radius-md:  12px;
   --radius-lg:  16px;
   --radius-xl:  24px;
+
+  /* Skeleton (Dark Mode) */
+  --skeleton-bg-1: var(--color-navy-800);
+  --skeleton-bg-2: var(--color-navy-700);
 
   /* Typography */
   --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
@@ -78,6 +94,41 @@
   /* Transition */
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Light Mode Tokens ── */
+:root[data-theme="light"] {
+  --surface-bg:         #f8fafc;
+  --surface-card:       rgba(255, 255, 255, 0.85);
+  --surface-card-hover: rgba(255, 255, 255, 1);
+  --surface-header:     rgba(248, 250, 252, 0.85);
+  --surface-border:     rgba(15, 23, 42, 0.1);
+  --surface-border-hover: rgba(15, 23, 42, 0.2);
+
+  --text-primary:   var(--color-slate-900);
+  --text-secondary: var(--color-slate-700);
+  --text-muted:     var(--color-slate-500);
+  --text-accent:    var(--color-blue-500);
+
+  --gradient-card:  linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.95) 100%);
+  --shadow-card:  0 4px 12px -2px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.02);
+  --shadow-card-hover: 0 12px 32px -4px rgba(37,99,235,0.15), 0 4px 12px rgba(0,0,0,0.05);
+
+  /* Component specific overrides for Light Mode */
+  --hero-bg: radial-gradient(at 40% 20%, hsla(217,91%,45%,0.06) 0px, transparent 50%),
+             radial-gradient(at 80% 0%,  hsla(199,89%,48%,0.04) 0px, transparent 50%),
+             radial-gradient(at 0%  50%, hsla(217,91%,35%,0.03) 0px, transparent 50%);
+  --hero-glow-1: rgba(37,99,235,0.06);
+  --hero-glow-2: rgba(14,165,233,0.04);
+  --stats-bar-bg: rgba(255,255,255,0.6);
+  --text-title: var(--color-navy-950);
+  --pill-bg: rgba(15,23,42,0.05);
+  --pill-accent-bg: rgba(37,99,235,0.1);
+  --pill-accent-text: var(--color-blue-600);
+
+  /* Skeleton (Light Mode) */
+  --skeleton-bg-1: var(--color-slate-200);
+  --skeleton-bg-2: var(--color-slate-300);
 }
 
 /* ── Base ── */
@@ -92,12 +143,13 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-navy-950);
+  background-color: var(--surface-bg);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
   min-height: 100vh;
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 ::selection {
@@ -214,9 +266,9 @@ body {
 /* ── Loading skeleton ── */
 .skeleton {
   background: linear-gradient(90deg,
-    var(--color-navy-800) 25%,
-    var(--color-navy-700) 50%,
-    var(--color-navy-800) 75%
+    var(--skeleton-bg-1) 25%,
+    var(--skeleton-bg-2) 50%,
+    var(--skeleton-bg-1) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;
@@ -225,28 +277,42 @@ body {
 
 /* ── Prose overrides for article pages ── */
 .prose-ingsight {
-  --tw-prose-body:        var(--color-slate-300);
-  --tw-prose-headings:    var(--color-white);
-  --tw-prose-lead:        var(--color-slate-300);
-  --tw-prose-links:       var(--color-blue-400);
-  --tw-prose-bold:        var(--color-white);
-  --tw-prose-counters:    var(--color-slate-400);
+  --tw-prose-body:        var(--text-secondary);
+  --tw-prose-headings:    var(--text-primary);
+  --tw-prose-lead:        var(--text-secondary);
+  --tw-prose-links:       var(--text-accent);
+  --tw-prose-bold:        var(--text-primary);
+  --tw-prose-counters:    var(--text-muted);
   --tw-prose-bullets:     var(--color-blue-500);
   --tw-prose-hr:          var(--surface-border);
-  --tw-prose-quotes:      var(--color-slate-200);
+  --tw-prose-quotes:      var(--text-secondary);
   --tw-prose-quote-borders: var(--color-blue-500);
-  --tw-prose-captions:    var(--color-slate-400);
-  --tw-prose-code:        var(--color-teal-300);
+  --tw-prose-captions:    var(--text-muted);
+  --tw-prose-code:        var(--color-teal-500);
   --tw-prose-pre-code:    var(--color-slate-200);
-  --tw-prose-pre-bg:      var(--color-navy-800);
+  --tw-prose-pre-bg:      var(--color-navy-900);
   --tw-prose-th-borders:  var(--surface-border);
   --tw-prose-td-borders:  var(--surface-border);
+  text-align: justify;
 }
 
 .prose-ingsight h1,
 .prose-ingsight h2,
 .prose-ingsight h3 {
   font-family: var(--font-display);
+  text-align: left; /* Títulos alineados a la izquierda siempre */
+}
+
+.prose-ingsight strong {
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+
+.prose-ingsight em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .prose-ingsight blockquote {
@@ -254,19 +320,20 @@ body {
   background: rgba(37,99,235,0.06);
   padding: 1rem 1.25rem;
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  text-align: left;
 }
 
 /* ── Input ── */
 .input-search {
   width: 100%;
-  background: rgba(15, 32, 64, 0.6);
+  background: var(--surface-bg);
   border: 1px solid var(--surface-border);
   color: var(--text-primary);
   border-radius: var(--radius-md);
   padding: 0.6rem 1rem 0.6rem 2.5rem;
   font-size: 0.875rem;
   font-family: var(--font-sans);
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
   backdrop-filter: blur(8px);
 }
 

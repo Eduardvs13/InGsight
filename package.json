@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "studio": "cd studio && sanity start",
+    "studio": "cd studio && sanity dev",
     "studio:deploy": "cd studio && sanity deploy"
   },
   "dependencies": {

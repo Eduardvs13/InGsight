@@ -1,15 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="g-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#2563eb"/>
       <stop offset="100%" stop-color="#0ea5e9"/>
     </linearGradient>
   </defs>
-  <!-- Background circle -->
-  <rect width="64" height="64" rx="14" fill="#0a1628"/>
-  <!-- I letterform -->
-  <rect x="10" y="14" width="7" height="36" rx="3" fill="url(#grad)"/>
-  <!-- G letterform -->
-  <path d="M26 32a15 15 0 1 1 15 15H34v-8h7v-7H26z" fill="url(#grad)"/>
-  <path d="M26 32a15 15 0 0 1 15-15" stroke="url(#grad)" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- G super gruesa -->
+  <text x="32" y="52" font-family="'Inter', sans-serif" font-weight="700" font-size="56" fill="url(#g-grad)" text-anchor="middle">G</text>
 </svg>

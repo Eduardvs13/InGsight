@@ -47,6 +47,12 @@ export default {
       type: "array",
       of: [{ type: "block" }],
     },
+    {
+      name: "bibliografia",
+      title: "Bibliografía",
+      type: "array",
+      of: [{ type: "block" }],
+    },
   ],
   preview: {
     select: {

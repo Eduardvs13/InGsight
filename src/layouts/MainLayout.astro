@@ -36,8 +36,18 @@ const canonicalUrl = Astro.url.href;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Theme Check -->
+  <script is:inline>
+    const t = localStorage.getItem('theme');
+    if (t === 'light' || (!t && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
 </head>
-<body style="background-color: var(--color-navy-950); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; display: flex; flex-direction: column;">
+<body style="background-color: var(--surface-bg); color: var(--text-primary); font-family: var(--font-sans); min-height: 100vh; display: flex; flex-direction: column; transition: background-color var(--transition-base), color var(--transition-base);">
 
   <!-- ── HEADER ── -->
   <header style="position: sticky; top: 0; z-index: 50; background: var(--surface-header); backdrop-filter: blur(20px) saturate(200%); -webkit-backdrop-filter: blur(20px) saturate(200%); border-bottom: 1px solid var(--surface-border);">
@@ -46,7 +56,7 @@ const canonicalUrl = Astro.url.href;
 
         <!-- Logotype -->
         <a href="/" aria-label="InGsight — Inicio" style="display: flex; flex-direction: column; text-decoration: none; flex-shrink: 0;">
-          <span style="font-family: var(--font-sans); font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-white); line-height: 1;">
+          <span style="font-family: var(--font-sans); font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-title); line-height: 1;">
             In<span style="background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">G</span>sight
           </span>
           <span style="font-size: 0.6rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); line-height: 1; margin-top: 2px;">
@@ -56,21 +66,26 @@ const canonicalUrl = Astro.url.href;
 
         <!-- Nav -->
         <nav aria-label="Navegación principal" style="display: flex; align-items: center; gap: 0.25rem;">
-          <a href="/" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 200ms; white-space: nowrap;"
-            onmouseover="this.style.color='var(--color-white)'; this.style.background='rgba(37,99,235,0.12)';"
-            onmouseout="this.style.color='var(--text-secondary)'; this.style.background='transparent';">
+          <a href="/" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 200ms; white-space: nowrap;"
+            onmouseover="this.style.color='var(--text-title)';"
+            onmouseout="this.style.color='var(--text-secondary)';">
             Inicio
           </a>
-          <a href="/" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 200ms; white-space: nowrap;"
-            onmouseover="this.style.color='var(--color-white)'; this.style.background='rgba(37,99,235,0.12)';"
-            onmouseout="this.style.color='var(--text-secondary)'; this.style.background='transparent';">
+          <a href="/" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 200ms; white-space: nowrap;"
+            onmouseover="this.style.color='var(--text-title)';"
+            onmouseout="this.style.color='var(--text-secondary)';">
             Artículos
           </a>
-          <a href="/" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 200ms; white-space: nowrap;"
-            onmouseover="this.style.color='var(--color-white)'; this.style.background='rgba(37,99,235,0.12)';"
-            onmouseout="this.style.color='var(--text-secondary)'; this.style.background='transparent';">
+          <a href="/" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 200ms; white-space: nowrap;"
+            onmouseover="this.style.color='var(--text-title)';"
+            onmouseout="this.style.color='var(--text-secondary)';">
             Sobre InGsight
           </a>
+          <!-- Theme Toggle -->
+          <button id="themeToggle" aria-label="Cambiar tema" style="margin-left: 0.5rem; padding: 0.4rem; border-radius: 50%; background: transparent; border: 1px solid var(--surface-border); color: var(--text-secondary); cursor: pointer; transition: all 200ms; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.color='var(--color-blue-400)'; this.style.borderColor='var(--color-blue-400)';" onmouseout="this.style.color='var(--text-secondary)'; this.style.borderColor='var(--surface-border)';">
+            <svg id="moonIcon" style="display: none; width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            <svg id="sunIcon" style="display: none; width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          </button>
         </nav>
 
         <!-- Search -->
@@ -98,51 +113,62 @@ const canonicalUrl = Astro.url.href;
     <slot />
   </main>
 
-  <!-- ── FOOTER ── -->
-  <footer style="background: var(--color-navy-900); border-top: 1px solid var(--surface-border); padding: 3rem 1.5rem 2rem;">
-    <div style="max-width: 1200px; margin: 0 auto;">
-      <div style="display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-bottom: 2.5rem;">
-
-        <!-- Brand column -->
-        <div style="max-width: 380px;">
-          <div style="font-family: var(--font-sans); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-white); margin-bottom: 0.5rem;">
+  <!-- ── FOOTER COMPACTO ── -->
+  <footer style="background: var(--surface-bg); border-top: 1px solid var(--surface-border); padding: 1.5rem 1.5rem; margin-top: auto;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="/" aria-label="InGsight — Inicio" style="text-decoration: none;">
+          <span style="font-family: var(--font-sans); font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); line-height: 1;">
             In<span style="background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">G</span>sight
-          </div>
-          <p style="font-size: 0.8rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">
-            Donde la ingeniería cobra sentido
-          </p>
-          <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.7; max-width: 340px;">
-            Publicación académica digital dedicada a la divulgación de investigación, innovación y análisis técnico en el campo de la ingeniería en español.
-          </p>
-        </div>
-
-        <!-- Links column -->
-        <div>
-          <h3 style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-blue-400); margin-bottom: 1rem;">
-            Revista
-          </h3>
-          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem;">
-            <li><a href="/" style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--color-white)'" onmouseout="this.style.color='var(--text-muted)'">Todos los artículos</a></li>
-            <li><a href="/" style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--color-white)'" onmouseout="this.style.color='var(--text-muted)'">Áreas temáticas</a></li>
-            <li><a href="/" style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--color-white)'" onmouseout="this.style.color='var(--text-muted)'">Autores</a></li>
-            <li><a href="/" style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--color-white)'" onmouseout="this.style.color='var(--text-muted)'">Sobre nosotros</a></li>
-          </ul>
-        </div>
-
+          </span>
+        </a>
+        <span style="color: var(--surface-border-hover); display: none; @media(min-width: 640px){ display: inline; }">|</span>
+        <p style="font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em; color: var(--text-muted); margin: 0;">
+          Donde la ingeniería cobra sentido
+        </p>
       </div>
 
-      <!-- Bottom bar -->
-      <div style="border-top: 1px solid var(--surface-border); padding-top: 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
-        <p style="font-size: 0.8rem; color: var(--text-muted);">
-          © {new Date().getFullYear()} InGsight. Todos los derechos reservados.
-        </p>
-        <p style="font-size: 0.75rem; color: var(--color-navy-600); letter-spacing: 0.04em;">
-          Impulsado por <span style="color: var(--text-muted);">Sanity CMS</span> · Desplegado en <span style="color: var(--text-muted);">Vercel</span>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem;">
+        <nav aria-label="Enlaces" style="display: flex; gap: 1rem;">
+          <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--text-title)'" onmouseout="this.style.color='var(--text-muted)'">Artículos</a>
+          <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--text-title)'" onmouseout="this.style.color='var(--text-muted)'">Autores</a>
+          <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 200ms;" onmouseover="this.style.color='var(--text-title)'" onmouseout="this.style.color='var(--text-muted)'">Sobre InGsight</a>
+        </nav>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0; padding-left: 1.5rem; border-left: 1px solid var(--surface-border);">
+          © {new Date().getFullYear()} InGsight.
         </p>
       </div>
     </div>
   </footer>
 
   <slot name="scripts" />
+  <script is:inline>
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+      const moon = document.getElementById('moonIcon');
+      const sun = document.getElementById('sunIcon');
+      
+      function updateIcon(theme) {
+        if (theme === 'light') {
+          sun.style.display = 'none';
+          moon.style.display = 'block';
+        } else {
+          moon.style.display = 'none';
+          sun.style.display = 'block';
+        }
+      }
+
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      updateIcon(currentTheme);
+
+      btn.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        const newTheme = isLight ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+      });
+    }
+  </script>
 </body>
 </html>
