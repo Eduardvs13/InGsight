@@ -2,167 +2,323 @@
 import MainLayout from "../layouts/MainLayout.astro";
 ---
 
-<MainLayout title="Aletheia - Revista Academica">
-  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-    <div class="max-w-3xl">
-      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#0056B3]">Revista académica</p>
-      <h1 class="mt-3 text-4xl font-semibold tracking-tight text-[#003366] sm:text-5xl">Lectura simple, fondo blanco, acento azul.</h1>
-      <p class="mt-4 max-w-2xl text-base leading-7 text-[#333333] sm:text-lg">
-        Un archivo editorial limpio para leer artículos científicos con prioridad absoluta en claridad, navegación y tipografía.
-      </p>
+<MainLayout title="InGsight — Donde la ingeniería cobra sentido">
+
+  <!-- ── HERO ── -->
+  <section style="position: relative; overflow: hidden; background: var(--gradient-mesh); padding: 5rem 1.5rem 4rem;">
+    <!-- Decorative glow orbs -->
+    <div style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;" aria-hidden="true">
+      <div style="position: absolute; top: -80px; right: -80px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%); border-radius: 50%;"></div>
+      <div style="position: absolute; bottom: -60px; left: -60px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%); border-radius: 50%;"></div>
     </div>
 
-    <div class="mt-10 flex items-center justify-between border-b border-[#D9E2EC] pb-3 text-sm text-gray-500">
-      <span id="article-count">Cargando artículos...</span>
-      <span>Búsqueda en vivo</span>
-    </div>
+    <div style="position: relative; max-width: 1200px; margin: 0 auto;">
+      <div style="max-width: 700px;" class="animate-fade-in-up">
 
-    <div class="mt-8 space-y-6" id="article-list" aria-live="polite"></div>
+        <!-- Label -->
+        <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.25rem;">
+          <span class="badge badge-accent">Revista académica de ingeniería</span>
+          <span style="width: 32px; height: 1px; background: var(--surface-border-hover);"></span>
+        </div>
 
-    <div id="no-results" class="hidden border border-dashed border-[#D9E2EC] bg-white px-6 py-10 text-center text-gray-500">
-      No se encontraron artículos con esa búsqueda.
+        <!-- Headline -->
+        <h1 style="font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; color: var(--color-white); margin-bottom: 1.25rem;">
+          Donde la ingeniería<br/>
+          <span style="background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">cobra sentido</span>
+        </h1>
+
+        <!-- Subheading -->
+        <p style="font-size: 1.125rem; color: var(--text-secondary); line-height: 1.75; max-width: 580px; margin-bottom: 2rem;">
+          InGsight reúne investigación aplicada, análisis técnico y divulgación científica de primer nivel para la comunidad hispanohablante de ingeniería. Conocimiento riguroso, escrito con claridad.
+        </p>
+
+        <!-- CTAs -->
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;">
+          <a href="#articulos" class="btn-primary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            Explorar artículos
+          </a>
+          <button id="heroSearchBtn" class="btn-ghost" onclick="document.getElementById('searchInput').focus()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Buscar tema específico
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- ── STATS BAR ── -->
+  <div style="background: rgba(10,22,40,0.6); border-top: 1px solid var(--surface-border); border-bottom: 1px solid var(--surface-border); backdrop-filter: blur(12px);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+      <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+        <span id="article-count" style="font-size: 0.8rem; color: var(--text-muted);">
+          <span style="display: inline-flex; gap: 6px; align-items: center;">
+            <span class="skeleton" style="width: 80px; height: 14px; border-radius: 4px; display: inline-block;"></span>
+          </span>
+        </span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">·</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Búsqueda en tiempo real</span>
+      </div>
+      <div style="font-size: 0.75rem; color: var(--color-navy-600); letter-spacing: 0.04em; font-weight: 500;">
+        <span style="color: var(--text-muted);">Contenido verificado por pares</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ARTICLES GRID ── -->
+  <section id="articulos" style="max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 5rem;">
+
+    <!-- Section header -->
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--color-white); margin-bottom: 0.25rem;">
+          Últimas publicaciones
+        </h2>
+        <p style="font-size: 0.875rem; color: var(--text-muted);">Ordenadas por fecha de publicación más reciente</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-teal-400); animation: pulseGlow 2s infinite;"></span>
+        <span style="font-size: 0.75rem; color: var(--color-teal-400); font-weight: 500; letter-spacing: 0.04em;">EN VIVO · Sanity CMS</span>
+      </div>
+    </div>
+
+    <!-- Article list container -->
+    <div id="article-list" aria-live="polite" role="list"
+      style="display: flex; flex-direction: column; gap: 1.25rem;">
+    </div>
+
+    <!-- Empty / no results -->
+    <div id="no-results" class="hidden" style="text-align: center; padding: 4rem 2rem; border: 1px dashed var(--surface-border); border-radius: var(--radius-xl);">
+      <div style="width: 56px; height: 56px; margin: 0 auto 1.25rem; background: rgba(37,99,235,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-blue-400);" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <p style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Sin resultados</p>
+      <p style="font-size: 0.875rem; color: var(--text-muted);">No se encontraron artículos que coincidan con tu búsqueda. Intenta con otros términos.</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="error-state" class="hidden" style="text-align: center; padding: 4rem 2rem; border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-xl); background: rgba(239,68,68,0.05);">
+      <p style="font-size: 0.875rem; color: #fca5a5; margin-bottom: 0.75rem;">No se pudo conectar con el servidor de contenido.</p>
+      <button onclick="loadArticles()" class="btn-ghost" style="font-size: 0.8rem;">Reintentar</button>
+    </div>
+
+  </section>
+
   <script type="module">
-    const projectId = "8knpnv8f";
-    const dataset = "production";
-    const query = '*[_type == "article" && defined(slug.current)] | order(fechaPublicacion desc){titulo, "slug": slug.current, portada, autores[]{nombre, apellido}, fechaPublicacion, palabrasClave, contenido}';
-    const url = `https://${projectId}.api.sanity.io/v1/data/query/${dataset}?query=${encodeURIComponent(query)}`;
+    const PROJECT_ID = "8knpnv8f";
+    const DATASET    = "production";
+    const GROQ = '*[_type == "article" && defined(slug.current)] | order(fechaPublicacion desc){titulo, "slug": slug.current, portada, autores[]{nombre, apellido}, fechaPublicacion, palabrasClave, contenido}';
+    const API_URL = `https://${PROJECT_ID}.api.sanity.io/v1/data/query/${DATASET}?query=${encodeURIComponent(GROQ)}`;
 
-    const articleList = document.getElementById("article-list");
-    const articleCount = document.getElementById("article-count");
-    const noResults = document.getElementById("no-results");
-    const searchInput = document.getElementById("searchInput");
+    const $list    = document.getElementById("article-list");
+    const $count   = document.getElementById("article-count");
+    const $noRes   = document.getElementById("no-results");
+    const $error   = document.getElementById("error-state");
+    const $search  = document.getElementById("searchInput");
 
-    function escapeHtml(value = "") {
-      return String(value).replace(/[&<>"']/g, (character) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character]);
+    // ── Utilities ──────────────────────────────────────────────
+    function escapeHtml(v = "") {
+      return String(v).replace(/[&<>"']/g, c =>
+        ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])
+      );
     }
 
-    function imageUrlFromAssetRef(assetRef) {
-      if (!assetRef) return "";
-
-      const match = assetRef.match(/^image-(.+)-([0-9]+x[0-9]+)-([a-z0-9]+)$/i);
-      if (!match) return "";
-
-      const [, assetId, dimensions, format] = match;
-      const normalizedFormat = format === "jpeg" ? "jpg" : format;
-
-      return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-${dimensions}.${normalizedFormat}`;
+    function imageUrlFromRef(ref) {
+      if (!ref) return "";
+      const m = ref.match(/^image-(.+)-([0-9]+x[0-9]+)-([a-z0-9]+)$/i);
+      if (!m) return "";
+      const [, id, dim, fmt] = m;
+      return `https://cdn.sanity.io/images/${PROJECT_ID}/${DATASET}/${id}-${dim}.${fmt === "jpeg" ? "jpg" : fmt}`;
     }
 
     function excerptFromPortableText(blocks = []) {
-      if (!Array.isArray(blocks)) return "Lectura académica disponible en el archivo de la revista.";
-
+      if (!Array.isArray(blocks)) return "";
       const text = blocks
-        .map((block) => (block?.children || []).map((child) => child?.text || "").join(" "))
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (!text) return "Lectura académica disponible en el archivo de la revista.";
-
-      const excerpt = text.slice(0, 180).trim();
-      return excerpt.length < text.length ? `${excerpt}...` : excerpt;
+        .map(b => (b?.children || []).map(c => c?.text || "").join(" "))
+        .join(" ").replace(/\s+/g, " ").trim();
+      if (!text) return "";
+      const s = text.slice(0, 200).trim();
+      return s.length < text.length ? `${s}…` : s;
     }
 
-    function renderArticles(items, filterValue = "") {
-      const normalizedFilter = filterValue.trim().toLowerCase();
-      const visibleItems = normalizedFilter
-        ? items.filter((article) => {
-            const searchText = `${article.titulo} ${article.dateLabel} ${article.excerpt} ${article.slug}`.toLowerCase();
-            return searchText.includes(normalizedFilter);
-          })
+    function readingTime(blocks = []) {
+      const wpm = 200;
+      const words = (blocks || []).flatMap(b => (b?.children || []).map(c => c?.text || "")).join(" ").split(/\s+/).length;
+      return Math.max(1, Math.round(words / wpm));
+    }
+
+    function initials(autores = []) {
+      if (!autores.length) return "??";
+      const a = autores[0];
+      return `${(a.nombre||"?")[0]}${(a.apellido||"?")[0]}`.toUpperCase();
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "";
+      return new Date(iso).toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    // ── Render ─────────────────────────────────────────────────
+    function renderArticles(items, filter = "") {
+      const q = filter.trim().toLowerCase();
+      const visible = q
+        ? items.filter(a =>
+            `${a.titulo} ${a.excerpt} ${(a.keywords||[]).join(" ")}`.toLowerCase().includes(q)
+          )
         : items;
 
-      articleCount.textContent = `${items.length} artículos disponibles`;
-      noResults.classList.toggle("hidden", visibleItems.length !== 0);
+      $count.innerHTML = `<span style="color:var(--text-secondary);font-weight:500;">${items.length}</span> <span>artículo${items.length !== 1 ? "s" : ""} publicado${items.length !== 1 ? "s" : ""}</span>`;
+      $noRes.classList.toggle("hidden", visible.length !== 0);
 
-      articleList.innerHTML = visibleItems
-        .map((article) => `
-          <article class="overflow-hidden rounded-2xl border border-[#E5EAF0] bg-white shadow-sm transition-shadow hover:shadow-md">
-            <div class="grid gap-0 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-              <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="block bg-[#F8F9FA] md:h-full">
-                ${article.cover
-                  ? `<img src="${article.cover}" alt="Portada de ${escapeHtml(article.titulo)}" class="aspect-[4/3] h-full w-full object-cover md:min-h-[220px]" loading="lazy" />`
-                  : `<div class="flex min-h-[220px] items-center justify-center px-6 text-center text-sm text-gray-400">Imagen no disponible</div>`}
-              </a>
+      if (!visible.length) { $list.innerHTML = ""; return; }
 
-              <div class="flex flex-col justify-between p-6 sm:p-7">
-                <div>
-                  <div class="flex items-center gap-3 text-xs uppercase tracking-[0.16em] text-gray-500">
-                    <span>${escapeHtml(article.dateLabel)}</span>
-                    <span class="h-px w-8 bg-[#D9E2EC]"></span>
-                    <span>Artículo</span>
-                  </div>
+      $list.innerHTML = visible.map((article, i) => {
+        const mins = article.rt;
+        const date = article.dateLabel;
+        const authors = (article.rawAutores || []).map(a => [a.nombre, a.apellido].filter(Boolean).join(" ")).join(", ") || "InGsight";
+        const initials2 = initials(article.rawAutores || []);
+        const hasCover = !!article.cover;
 
-                  <h2 class="mt-3 text-2xl font-semibold leading-tight text-[#0056B3] sm:text-[1.65rem]">
-                    <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="transition-colors hover:text-[#003366]">${escapeHtml(article.titulo)}</a>
-                  </h2>
+        return `
+          <article role="listitem"
+            class="glass card-lift animate-fade-in-up"
+            style="border-radius: var(--radius-lg); overflow: hidden; animation-delay: ${i * 0.07}s;"
+          >
+            <div style="display: grid; grid-template-columns: 1fr; min-height: 180px;">
+              ${hasCover ? `
+                <div style="position: relative; overflow: hidden; height: 220px;">
+                  <img
+                    src="${escapeHtml(article.cover)}"
+                    alt="Portada del artículo: ${escapeHtml(article.titulo)}"
+                    loading="lazy"
+                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 500ms ease;"
+                    onmouseover="this.style.transform='scale(1.04)'"
+                    onmouseout="this.style.transform='scale(1)'"
+                  />
+                  <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(4,13,26,0.7) 0%, transparent 50%);"></div>
+                </div>
+              ` : ""}
 
-                  <p class="mt-4 max-w-3xl text-[1.02rem] leading-7 text-[#333333]">${escapeHtml(article.excerpt)}</p>
+              <div style="padding: 1.75rem 2rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+                <!-- Meta row -->
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                  ${date ? `<span class="badge badge-accent">${escapeHtml(date)}</span>` : ""}
+                  <span style="color: var(--surface-border-hover); font-size: 0.75rem;">·</span>
+                  <span class="badge badge-teal">
+                    <svg width="10" height="10" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                    ${mins} min de lectura
+                  </span>
                 </div>
 
-                <div class="mt-6 flex items-center justify-between gap-4 text-sm text-gray-500">
-                  <span>Lectura académica</span>
-                  <a href="/articles?slug=${encodeURIComponent(article.slug)}" class="font-medium text-[#0056B3] transition-colors hover:text-[#003366]">Leer artículo</a>
+                <!-- Title -->
+                <div>
+                  <h2 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.75rem;">
+                    <a href="/articles?slug=${encodeURIComponent(article.slug)}"
+                      style="color: var(--color-white); text-decoration: none; transition: color 200ms;"
+                      onmouseover="this.style.color='var(--color-blue-300)'"
+                      onmouseout="this.style.color='var(--color-white)'">
+                      ${escapeHtml(article.titulo)}
+                    </a>
+                  </h2>
+                  ${article.excerpt ? `
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                      ${escapeHtml(article.excerpt)}
+                    </p>
+                  ` : ""}
+                </div>
+
+                <!-- Keywords -->
+                ${article.keywords && article.keywords.length ? `
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    ${article.keywords.slice(0, 4).map(k => `
+                      <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; background: rgba(15,32,64,0.8); border: 1px solid var(--surface-border); color: var(--text-muted); font-weight: 500;">
+                        ${escapeHtml(k)}
+                      </span>
+                    `).join("")}
+                  </div>
+                ` : ""}
+
+                <!-- Author + CTA -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--surface-border);">
+                  <div style="display: flex; align-items: center; gap: 0.65rem;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-brand); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: white; flex-shrink: 0;" aria-hidden="true">
+                      ${escapeHtml(initials2)}
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">${escapeHtml(authors)}</span>
+                  </div>
+                  <a href="/articles?slug=${encodeURIComponent(article.slug)}"
+                    style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 600; color: var(--color-blue-400); text-decoration: none; transition: all 200ms; padding: 0.35rem 0.85rem; border-radius: 8px; border: 1px solid rgba(59,130,246,0.25);"
+                    onmouseover="this.style.background='rgba(37,99,235,0.15)'; this.style.color='var(--color-blue-300)'"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--color-blue-400)'"
+                    aria-label="Leer artículo: ${escapeHtml(article.titulo)}">
+                    Leer artículo
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </a>
                 </div>
               </div>
             </div>
           </article>
-        `)
-        .join("");
+        `;
+      }).join("");
     }
 
+    // ── Skeletons ───────────────────────────────────────────────
+    function renderSkeletons(n = 4) {
+      $list.innerHTML = Array.from({ length: n }).map(() => `
+        <div style="border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--surface-border); background: var(--surface-card); padding: 1.75rem 2rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="skeleton" style="width: 140px; height: 20px;"></div>
+            <div class="skeleton" style="width: 75%; height: 28px;"></div>
+            <div class="skeleton" style="width: 90%; height: 16px;"></div>
+            <div class="skeleton" style="width: 65%; height: 16px;"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // ── Fetch ───────────────────────────────────────────────────
     async function loadArticles() {
+      renderSkeletons();
+      $error.classList.add("hidden");
       try {
-        const response = await fetch(url);
-        const payload = await response.json();
-        const items = Array.isArray(payload.result) ? payload.result : [];
+        const res  = await fetch(API_URL);
+        const data = await res.json();
+        const raw  = Array.isArray(data.result) ? data.result : [];
 
-        const normalizedItems = items.map((article) => {
-          const dateLabel = article.fechaPublicacion
-            ? new Date(article.fechaPublicacion).toLocaleDateString("es-ES", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })
-            : "";
+        const items = raw.map(a => ({
+          slug:       a.slug,
+          titulo:     a.titulo,
+          excerpt:    excerptFromPortableText(a.contenido),
+          dateLabel:  formatDate(a.fechaPublicacion),
+          cover:      a.portada?.asset?._ref ? imageUrlFromRef(a.portada.asset._ref) : "",
+          keywords:   Array.isArray(a.palabrasClave) ? a.palabrasClave : [],
+          rt:         readingTime(a.contenido),
+          rawAutores: Array.isArray(a.autores) ? a.autores : [],
+        }));
 
-          const cover = article.portada?.asset?._ref
-            ? imageUrlFromAssetRef(article.portada.asset._ref)
-            : "";
+        renderArticles(items, $search?.value ?? "");
 
-          return {
-            slug: article.slug,
-            titulo: article.titulo,
-            excerpt: excerptFromPortableText(article.contenido),
-            dateLabel,
-            cover,
-          };
-        });
-
-        renderArticles(normalizedItems, searchInput?.value ?? "");
-
-        if (searchInput) {
-          searchInput.addEventListener("input", (event) => {
-            renderArticles(normalizedItems, event.target.value);
-          });
+        if ($search) {
+          $search.addEventListener("input", e => renderArticles(items, e.target.value));
         }
-      } catch (error) {
-        articleCount.textContent = "Error cargando artículos";
-        articleList.innerHTML = "";
-        noResults.classList.add("hidden");
-        console.error(error);
+      } catch (err) {
+        $count.textContent = "Error al cargar artículos";
+        $list.innerHTML = "";
+        $error.classList.remove("hidden");
+        console.error("[InGsight] Error fetching articles:", err);
       }
     }
 
+    window.loadArticles = loadArticles;
     loadArticles();
   </script>
+
 </MainLayout>
