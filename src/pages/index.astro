@@ -104,7 +104,7 @@ import MainLayout from "../layouts/MainLayout.astro";
   <script type="module">
     const PROJECT_ID = "8knpnv8f";
     const DATASET    = "production";
-    const GROQ = '*[_type == "article" && defined(slug.current)] | order(fechaPublicacion desc){titulo, "slug": slug.current, portada, autores[]{nombre, apellido}, fechaPublicacion, palabrasClave, contenido}';
+    const GROQ = '*[_type == "article" && defined(slug.current)] | order(fechaPublicacion desc){titulo, "slug": slug.current, portada, autores[]->{nombre, apellido}, fechaPublicacion, palabrasClave, contenido}';
     const API_URL = `https://${PROJECT_ID}.api.sanity.io/v1/data/query/${DATASET}?query=${encodeURIComponent(GROQ)}`;
 
     const $list    = document.getElementById("article-list");
@@ -227,7 +227,7 @@ import MainLayout from "../layouts/MainLayout.astro";
                 ${article.keywords && article.keywords.length ? `
                   <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
                     ${article.keywords.slice(0, 4).map(k => `
-                      <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; background: rgba(15,32,64,0.8); border: 1px solid var(--surface-border); color: var(--text-muted); font-weight: 500;">
+                      <span style="font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; background: var(--pill-bg); border: 1px solid var(--surface-border); color: var(--text-secondary); font-weight: 500;">
                         ${escapeHtml(k)}
                       </span>
                     `).join("")}

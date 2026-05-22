@@ -105,7 +105,7 @@ import MainLayout from "../../layouts/MainLayout.astro";
           return;
         }
 
-        const groq = `*[_type=="article" && slug.current=="${slug}"][0]{titulo, fechaPublicacion, palabrasClave, autores[]{nombre,apellido}, portada, contenido, bibliografia}`;
+        const groq = `*[_type=="article" && slug.current=="${slug}"][0]{titulo, fechaPublicacion, palabrasClave, autores[]->{nombre,apellido}, portada, contenido, bibliografia}`;
         const url  = `https://${PROJECT_ID}.api.sanity.io/v1/data/query/${DATASET}?query=${encodeURIComponent(groq)}`;
 
         try {
@@ -209,7 +209,7 @@ import MainLayout from "../../layouts/MainLayout.astro";
                   <p style="font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.75rem;">Palabras clave</p>
                   <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
                     ${keywords.map(k => `
-                      <span style="font-size:0.75rem; padding:4px 12px; border-radius:999px; background:rgba(37,99,235,0.1); border:1px solid rgba(37,99,235,0.2); color:var(--color-blue-300); font-weight:500;">
+                      <span style="font-size:0.75rem; padding:4px 12px; border-radius:999px; background:var(--pill-accent-bg); border:1px solid var(--surface-border); color:var(--pill-accent-text); font-weight:500;">
                         ${escapeHtml(k)}
                       </span>
                     `).join("")}
