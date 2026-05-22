@@ -16,9 +16,9 @@ import MainLayout from "../layouts/MainLayout.astro";
       <div style="max-width: 700px;" class="animate-fade-in-up">
 
         <!-- Label -->
-        <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.25rem;">
-          <span class="badge badge-accent">Revista académica de ingeniería</span>
-          <span style="width: 32px; height: 1px; background: var(--surface-border-hover);"></span>
+        <div class="flex items-center gap-4 mb-8">
+          <span class="badge badge-accent">Blog</span>
+          <div class="h-px bg-[var(--surface-border)] flex-grow max-w-[60px]"></div>
         </div>
 
         <!-- Headline -->
@@ -174,7 +174,10 @@ import MainLayout from "../layouts/MainLayout.astro";
         const mins = article.rt;
         const date = article.dateLabel;
         const authors = (article.rawAutores || []).map(a => [a.nombre, a.apellido].filter(Boolean).join(" ")).join(", ") || "InGsight";
-        const initials2 = initials(article.rawAutores || []);
+        const hasMultipleAuthors = (article.rawAutores || []).length > 1;
+        const avatarContent = hasMultipleAuthors 
+          ? `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`
+          : escapeHtml(initials(article.rawAutores || []));
         const hasCover = !!article.cover;
 
         return `
@@ -238,7 +241,7 @@ import MainLayout from "../layouts/MainLayout.astro";
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--surface-border);">
                   <div style="display: flex; align-items: center; gap: 0.65rem;">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gradient-brand); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: white; flex-shrink: 0;" aria-hidden="true">
-                      ${escapeHtml(initials2)}
+                      ${avatarContent}
                     </div>
                     <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">${escapeHtml(authors)}</span>
                   </div>

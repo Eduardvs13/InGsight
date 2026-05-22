@@ -58,6 +58,8 @@ import MainLayout from "../../layouts/MainLayout.astro";
               if (linkMark) {
                 const def = (block.markDefs || []).find(d => d._key === linkMark);
                 if (def?.href) t = `<a href="${escapeHtml(def.href)}" target="_blank" rel="noopener noreferrer">${t}</a>`;
+              } else {
+                t = t.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--color-blue-400); text-decoration:underline; word-break:break-all;">$1</a>');
               }
               return t;
             }).join("");
@@ -127,7 +129,10 @@ import MainLayout from "../../layouts/MainLayout.astro";
             ? new Date(doc.fechaPublicacion).toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })
             : "";
           const authors  = (doc.autores || []).map(a => [a.nombre, a.apellido].filter(Boolean).join(" ")).join(", ") || "InGsight";
-          const authorI  = doc.autores?.length ? `${(doc.autores[0].nombre||"?")[0]}${(doc.autores[0].apellido||"?")[0]}`.toUpperCase() : "IG";
+          const hasMultipleAuthors = (doc.autores || []).length > 1;
+          const avatarContent = hasMultipleAuthors
+            ? `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`
+            : escapeHtml(doc.autores?.length ? `${(doc.autores[0].nombre||"?")[0]}${(doc.autores[0].apellido||"?")[0]}`.toUpperCase() : "IG");
           const cover    = doc.portada?.asset?._ref ? imageUrlFromRef(doc.portada.asset._ref) : null;
           const rt       = readingTime(doc.contenido);
           const keywords = Array.isArray(doc.palabrasClave) ? doc.palabrasClave : [];
@@ -161,7 +166,7 @@ import MainLayout from "../../layouts/MainLayout.astro";
                   ${rt} min de lectura
                 </span>
                 <span style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pill-accent-text); padding: 0.35rem 0.85rem; background: var(--pill-accent-bg); border-radius: 999px;">
-                  Artículo de Ingeniería
+                  Blog
                 </span>
               </div>
 
@@ -173,7 +178,7 @@ import MainLayout from "../../layouts/MainLayout.astro";
               <!-- Author -->
               <div style="display:inline-flex; align-items:center; gap:0.75rem; padding:0.65rem 1.25rem; border-radius:999px; background:var(--pill-bg); border:1px solid var(--surface-border);" itemprop="author" itemscope itemtype="https://schema.org/Person">
                   <div style="width:36px; height:36px; border-radius:50%; background:var(--gradient-brand); display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; color:white; flex-shrink:0;" aria-hidden="true">
-                    ${escapeHtml(authorI)}
+                    ${avatarContent}
                   </div>
                   <div style="text-align:left;">
                     <p style="font-size:0.8rem; color:var(--text-muted); margin:0; line-height:1.2;">Autor${(doc.autores||[]).length > 1 ? "es" : ""}</p>
