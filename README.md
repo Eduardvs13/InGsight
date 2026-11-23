@@ -4,6 +4,21 @@
 
 Publicación académica digital de ingeniería en español, impulsada por Astro + Sanity CMS y desplegada en Vercel.
 
+**Sitio:** [ingsight-web.vercel.app](https://ingsight-web.vercel.app)
+
+![Página de inicio de InGsight](.github/assets/home.jpg)
+
+## Contexto y equipo
+
+Sitio de divulgación científica de ingeniería, hecho en equipo por [cereandel](https://github.com/cereandel) y [Eduard Velasco](https://github.com/Eduardvs13). Las decisiones de diseño, contenido y arquitectura las tomamos entre los dos.
+
+En el historial de commits, cereandel aparece con la base del proyecto (Astro, integración con Sanity, páginas de artículos y despliegue en Vercel), y yo con:
+
+- El cambio de marca a InGsight y el rediseño de la interfaz, con modo claro en todo el sitio.
+- Corrección de los nombres de autores que vienen de Sanity y soporte para artículos con varios autores.
+- Renderizado en el servidor (SSR) con rutas dinámicas por artículo y un sitemap dinámico, para mejorar el SEO.
+- Redirección de las URL antiguas (`/articles?slug=`) a las nuevas, `robots.txt` y verificación en Google Search Console.
+
 ---
 
 ## Stack tecnológico
@@ -28,8 +43,10 @@ Publicación académica digital de ingeniería en español, impulsada por Astro 
 │   │   └── MainLayout.astro # Header + Footer globales
 │   ├── pages/
 │   │   ├── index.astro      # Home: hero + listado de artículos
+│   │   ├── sitemap.xml.js   # Sitemap dinámico con los artículos publicados
 │   │   └── articles/
-│   │       └── index.astro  # Detalle de artículo (routing via ?slug=)
+│   │       ├── [slug].astro # Detalle de artículo, renderizado en el servidor (SSR)
+│   │       └── index.astro  # Redirige las URL antiguas /articles?slug=
 │   ├── sanity/
 │   │   ├── sanityClient.js  # Cliente @sanity/client
 │   │   ├── queries.js       # GROQ reutilizables
@@ -43,7 +60,7 @@ Publicación académica digital de ingeniería en español, impulsada por Astro 
 │   │   └── settings.js
 │   ├── sanity.config.js
 │   └── sanity.cli.js
-├── vercel.json              # Rewrites para SPA-style routing
+├── vercel.json              # Rewrites heredados del routing anterior
 └── astro.config.mjs
 ```
 
@@ -88,7 +105,7 @@ PUBLIC_SANITY_DATASET=production
 1. Crear/editar artículo en Sanity Studio (`npm run studio` o la URL de Studio desplegado)
 2. Publicar el documento en Sanity
 3. El frontend lo lee en tiempo real mediante la API pública de Sanity CDN
-4. Sin rebuild necesario — los artículos se cargan client-side al visitar la página
+4. Sin rebuild necesario: cada artículo se renderiza en el servidor (SSR) al visitarlo, y el sitemap se actualiza solo
 
 ---
 
@@ -100,12 +117,12 @@ Para permitir que el frontend acceda a la API de Sanity:
 # Desarrollo local
 sanity cors add http://localhost:4321
 
-# Producción (reemplaza con tu dominio Vercel)
-sanity cors add https://tu-proyecto.vercel.app
+# Producción
+sanity cors add https://ingsight-web.vercel.app
 ```
 
 ---
 
 ## Licencia
 
-MIT © InGsight
+[Apache 2.0](LICENSE)
