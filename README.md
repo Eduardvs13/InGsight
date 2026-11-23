@@ -10,7 +10,7 @@ Publicación académica digital de ingeniería en español, impulsada por Astro 
 
 ## Contexto y equipo
 
-Sitio de divulgación científica de ingeniería, hecho en equipo por [cereandel](https://github.com/cereandel) y [Eduard Velasco](https://github.com/Eduardvs13). Las decisiones de diseño, contenido y arquitectura las tomamos entre los dos.
+Sitio de divulgación científica de ingeniería que desarrollamos [cereandel](https://github.com/cereandel) y [Eduard Velasco](https://github.com/Eduardvs13) a pedido de una profesora, que es quien publica los artículos. El código, la arquitectura y las decisiones de diseño son trabajo de los dos.
 
 En el historial de commits, cereandel aparece con la base del proyecto (Astro, integración con Sanity, páginas de artículos y despliegue en Vercel), y yo con:
 
